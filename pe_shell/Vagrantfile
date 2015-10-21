@@ -1,0 +1,79 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+$ADD_HOST_INFO = <<SCRIPT
+IP_ADDRESS=$(ip a s eth0 | grep '/24' | cut -d / -f1 | awk '{print $2}')
+echo $IP_ADDRESS $HOSTNAME ${HOSTNAME%%.*} >> /etc/hosts
+SCRIPT
+
+PE_HOST_NAME = "pe.asde.com"
+PE_PRIVATE_IP = "192.168.56.10"
+VAGRANTFILE_API_VERSION = "2"
+# Directory path where PE installs modules to be used
+#PE_MODULE_PATH = "/etc/puppetlabs/puppet/environments/production/modules"
+PE_MODULE_PATH = "/etc/puppetlabs/code/environments/production/modules"
+# Location of git modules on host system
+GIT_MODULE_PATH = "../git/soasuite/Puppet_Modules"
+# Synced folder of git modules from host machine to VM
+GIT_SYNC_MODULE_PATH = "/modules_in_work"
+# Location of local modules on host system
+#LOCAL_MODULE_PATH = "../workspace"
+# Synced folder of git modules from host machine to VM
+#LOCAL_SYNC_MODULE_PATH = "/new_modules_in_work"
+# Modules to link to under synced folder
+#GIT_LINK_MODULES = ['hieraconfig', 'hiera', 'stdlib', 'javaconfig', 'lvmconfig',
+#                    'mq_configuration', 'profiles', 'user_management', 'ssl',
+#	            'wmq_install', 'extract_tarball', 'was_common', 'elk_stack']
+
+#LOCAL_LINK_MODULES = ['test_node1', 'tagmail', 'elasticsearch', 'apt', 'yum',
+#                      'logstash', 'file_concat', 'kibana', 'wget' 'layer7_install' ]
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+#  config.vm.box = "centos7_base"
+#  config.vm.box_url = "https://vagrantcloud.com/parallels/boxes/centos-7.0"
+#  config.vm.box = 'chef/centos-7.0'
+  config.vm.box = 'sixpac009/centos71-base'
+#  config.vm.box_url = 'https://atlas.hashicorp.com/chef/boxes/centos-7.0'
+  
+  config.ssh.forward_agent = true
+    
+  config.vm.network "private_network", ip: PE_PRIVATE_IP 
+  #config.vm.network "forwarded_port", guest: 80, host: 33008
+  #config.vm.network "forwarded_port", guest: 8000, host: 33800
+  #config.vm.network "forwarded_port", guest: 8080, host: 33808
+
+#  config.vm.synced_folder GIT_MODULE_PATH, GIT_SYNC_MODULE_PATH
+#  config.vm.synced_folder LOCAL_MODULE_PATH, LOCAL_SYNC_MODULE_PATH
+  
+
+  #config.vm.provision :shell, inline: $ADD_HOST_INFO
+  # config.vm.provision :shell, inline: "echo $1 $2 ${2%%.*} >> /etc/hosts", args: [PE_PRIVATE_IP, PE_HOST_NAME]
+  config.vm.provision :shell, path: 'pe_install.sh', args: [PE_PRIVATE_IP, PE_HOST_NAME]
+  # config.vm.provision :shell, inline: "rm -rf $1", args: [PE_MODULE_PATH]
+  # config.vm.provision :shell, inline: "ln -s $1 $2", args: [SYNC_MODULE_PATH, PE_MODULE_PATH]
+#  GIT_LINK_MODULES.each do |m|
+#    config.vm.provision :shell, inline: "ln -s $1/$3 $2", args: [GIT_SYNC_MODULE_PATH, PE_MODULE_PATH, m]
+#  end
+#  LOCAL_LINK_MODULES.each do |m|
+#    config.vm.provision :shell, inline: "ln -s $1/$3 $2", args: [LOCAL_SYNC_MODULE_PATH, PE_MODULE_PATH, m]
+#  end
+
+#  config.vm.provision :shell, inline: "mkdir -p /var/www/html/pub/javaconfig"
+#  config.vm.provision :shell, inline: "ln -s $1/javaconfig/files", args: [GIT_SYNC_MODULE_PATH]
+
+#  config.vm.provision :shell, inline: "mkdir -p /var/www/html/pub/elk_stack"
+#  config.vm.provision :shell, inline: "ln -s $1/elk_install_files /var/www/html/pub/elk_stack", args: [LOCAL_SYNC_MODULE_PATH]
+
+  config.vm.hostname = PE_HOST_NAME
+
+  config.vm.provider "virtualbox" do |v|
+    v.name = "Puppet Enterprise"
+    v.gui = true
+    v.cpus = 3
+    # minimum should be considered to be 2048, but feel free to use any
+    # value between 2048 and half your available system memory
+    v.memory = 4096
+  end
+end
