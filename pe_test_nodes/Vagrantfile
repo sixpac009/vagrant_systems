@@ -23,10 +23,18 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
+
 #  config.vm.box = 'chef/centos-6.6'
 #  config.vm.box_url = 'https://atlas.hashicorp.com/chef/boxes/centos-6.6'
   config.vm.box = 'sixpac009/centos71-base'
   config.ssh.forward_agent = true
+
+# For the following three lines to add information to hosts file
+# the vagrant-hostmanager pligin needs to be installed.
+# vagrant plugin install vagrant-hostmanager
+  config.hostmanager.enabled = true
+  config.hostmanager.manage_host = true
+  config.hostmanager.ignore_private_ip = false
     
   #config.vm.synced_folder "bootbox-shared", "/vagrant"
   #config.vm.synced_folder "../../",         "/genesis"
