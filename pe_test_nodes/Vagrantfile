@@ -7,7 +7,7 @@ IP_ADDRESS=$(ip a s enp0s8 | grep '/24' | cut -d / -f1 | awk '{print $2}')
 echo $IP_ADDRESS $HOSTNAME ${HOSTNAME%%.*} >> /etc/hosts
 SCRIPT
 
-PE_SOA_HOST_NAME = "soa-puppet01.harris-hc-lab.com"
+
 PE_HOST_NAME = "pe.asde.com"
 PE_PRIVATE_IP = "192.168.56.10"
 NODE1_HOST_NAME = "node1.asde.com"
@@ -23,9 +23,6 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-
-#  config.vm.box = 'chef/centos-6.6'
-#  config.vm.box_url = 'https://atlas.hashicorp.com/chef/boxes/centos-6.6'
   config.vm.box = 'sixpac009/centos71-base'
   config.ssh.forward_agent = true
 
@@ -35,22 +32,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.hostmanager.enabled = true
   config.hostmanager.manage_host = true
   config.hostmanager.ignore_private_ip = false
+  config.hostmanager.include_offline = true
     
-  #config.vm.synced_folder "bootbox-shared", "/vagrant"
-  #config.vm.synced_folder "../../",         "/genesis"
-  #config.vm.synced_folder "files",            "/files"
-  #config.vm.synced_folder "../git/soasuite/Puppet_Modules", "/modules_in_work"
   
   #config.vm.provision :shell, inline: $ADD_HOST_INFO
-  config.vm.provision :shell, inline: "echo $1 $3 $2 ${2%%.*} >> /etc/hosts", args: [PE_PRIVATE_IP, PE_HOST_NAME, PE_SOA_HOST_NAME]
-  config.vm.provision :shell, inline: "echo $1 $2 ${2%%.*} >> /etc/hosts", args: [NODE1_PRIVATE_IP, NODE1_HOST_NAME]
-  config.vm.provision :shell, inline: "echo $1 $2 ${2%%.*} >> /etc/hosts", args: [NODE2_PRIVATE_IP, NODE2_HOST_NAME]
-  config.vm.provision :shell, inline: "echo $1 $2 ${2%%.*} >> /etc/hosts", args: [NODE3_PRIVATE_IP, NODE3_HOST_NAME]
-  config.vm.provision :shell, inline: "echo $1 $2 ${2%%.*} >> /etc/hosts", args: [NODE4_PRIVATE_IP, NODE4_HOST_NAME]
+  config.vm.provision :shell, inline: "echo $1 $3 $2 ${2%%.*} >> /etc/hosts", args: [PE_PRIVATE_IP, PE_HOST_NAME]
+  
+# Adds the test nodes to PE for management
   config.vm.provision :shell, inline: "curl -k https://pe.asde.com:8140/packages/current/install.bash | sudo bash"
   config.vm.provision :shell, inline: "mkdir /apps"
-  #config.puppet_install.puppet_version = :latest
-  #config.puppet_install.puppet_version = '3.7.2'
 
   config.vm.define "node1" do |node1|
     node1.vm.hostname = NODE1_HOST_NAME
@@ -63,6 +53,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # minimum should be considered to be 2048, but feel free to use any
       # value between 2048 and half your available system memory
       v.memory = 1048
+    #  v.hostmanager.aliases = NODE1_HOST_NAME.split('.').first
     end
   end
   config.vm.define "node2" do |node2|
