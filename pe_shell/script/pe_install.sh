@@ -4,13 +4,17 @@
 
 set -e
 
-FILEDIR='/vagrant/files'
+FILEDIR='/vagrant'
+TARDIR="$FILEDIR/tar"
+ANSWERDIR="$FILEDIR/answer"
 WORKDIR='/tmp'
 #PE_TAR='puppet-enterprise-3.8.0-el-7-x86_64.tar.gz'
-PE_TAR='puppet-enterprise-2015.2.0-el-7-x86_64.tar.gz'
+#PE_TAR='puppet-enterprise-2015.2.0-el-7-x86_64.tar.gz'
+PE_TAR='puppet-enterprise-2015.2.2-el-7-x86_64.tar.gz'
 PE_ANSWERS='puppet-enterprise-answers'
 #PE_INSTALLERDIR='puppet-enterprise-3.8.0-el-7-x86_64'
-PE_INSTALLERDIR='puppet-enterprise-2015.2.0-el-7-x86_64'
+#PE_INSTALLERDIR='puppet-enterprise-2015.2.0-el-7-x86_64'
+PE_INSTALLERDIR='puppet-enterprise-2015.2.2-el-7-x86_64'
 PE_PORTS='80 443 4433 4435 8140 61613'
 
 #REPO_URL="https://yum.puppetlabs.com/el/6.5/products/x86_64/puppetlabs-release-6-10.noarch.rpm"
@@ -29,8 +33,8 @@ fi
 
 # Copy files to /tmp directory
 echo "Copy files to $WORKDIR...."
-[ -f "$WORKDIR/$PE_TAR" ] || cp $FILEDIR/$PE_TAR $WORKDIR/.
-[ -f "$WORKDIR/$PE_ANSWERS" ] || cp $FILEDIR/$PE_ANSWERS $WORKDIR/.
+[ -f "$WORKDIR/$PE_TAR" ] || cp $TARDIR/$PE_TAR $WORKDIR/.
+[ -f "$WORKDIR/$PE_ANSWERS" ] || cp $ANSWERDIR/$PE_ANSWERS $WORKDIR/.
 
 # Change directory to working directory
 echo "Changing to $WORKDIR directory...."

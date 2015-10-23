@@ -31,13 +31,16 @@ GIT_SYNC_MODULE_PATH = "/modules_in_work"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-#  config.vm.box = "centos7_base"
-#  config.vm.box_url = "https://vagrantcloud.com/parallels/boxes/centos-7.0"
-#  config.vm.box = 'chef/centos-7.0'
   config.vm.box = 'sixpac009/centos71-base'
-#  config.vm.box_url = 'https://atlas.hashicorp.com/chef/boxes/centos-7.0'
-  
   config.ssh.forward_agent = true
+
+# For the following three lines to add information to hosts file
+# the vagrant-hostmanager pligin needs to be installed.
+# vagrant plugin install vagrant-hostmanager
+  config.hostmanager.enabled = true
+  config.hostmanager.manage_host = true
+  config.hostmanager.ignore_private_ip = false
+  config.hostmanager.include_offline = true
     
   config.vm.network "private_network", ip: PE_PRIVATE_IP 
   #config.vm.network "forwarded_port", guest: 80, host: 33008
@@ -50,7 +53,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   #config.vm.provision :shell, inline: $ADD_HOST_INFO
   # config.vm.provision :shell, inline: "echo $1 $2 ${2%%.*} >> /etc/hosts", args: [PE_PRIVATE_IP, PE_HOST_NAME]
-  config.vm.provision :shell, path: 'pe_install.sh', args: [PE_PRIVATE_IP, PE_HOST_NAME]
+  config.vm.provision :shell, path: 'script/pe_install.sh', args: [PE_PRIVATE_IP, PE_HOST_NAME]
   # config.vm.provision :shell, inline: "rm -rf $1", args: [PE_MODULE_PATH]
   # config.vm.provision :shell, inline: "ln -s $1 $2", args: [SYNC_MODULE_PATH, PE_MODULE_PATH]
 #  GIT_LINK_MODULES.each do |m|
@@ -71,9 +74,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provider "virtualbox" do |v|
     v.name = "Puppet Enterprise"
     v.gui = true
-    v.cpus = 3
+    v.cpus = 2
     # minimum should be considered to be 2048, but feel free to use any
     # value between 2048 and half your available system memory
-    v.memory = 4096
+    #v.memory = 4096
+    v.memory = 2048
   end
 end
